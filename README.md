@@ -1,6 +1,6 @@
 # Apache Artemis RPM
 
-This project builds an rpm from the Apache Artemis tarball binary.
+Build an rpm for Apache Artemis from tarball.
 
 Blog post: [Janik von Rotz - The final rpm packaging guide](https://janikvonrotz.ch/2019/03/20/the-final-rpm-packaging-guide/)
 
@@ -16,10 +16,10 @@ Blog post: [Janik von Rotz - The final rpm packaging guide](https://janikvonrotz
 Creates the rpmbuild folder structure.
 
 **copyRpmbuild**  
-Copies spec and build file into build folder.
+Copies spec and build script into build folder.
 
 **rpmBuild**  
-Executes the rpm build.
+Runs the rpm build.
 
 **rpmDist**  
 Copies rpm file into distribution folder.
