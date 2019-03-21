@@ -1,0 +1,63 @@
+plugins {
+    id "de.undercouch.download" version "3.4.3"
+}
+
+group 'janikvonrotz'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'base'
+
+def props = [ARTEMIS_VERSION : ARTEMIS_VERSION]
+
+
+task createRpmbuildFolders (
+        group: 'rpm'
+) {
+    new File("${buildDir}/rpmbuild/BUILD").mkdirs()
+    new File("${buildDir}/rpmbuild/BUILDROOT").mkdirs()
+    new File("${buildDir}/rpmbuild/RPMS").mkdirs()
+    new File("${buildDir}/rpmbuild/SOURCES").mkdirs()
+    new File("${buildDir}/rpmbuild/SPECS").mkdirs()
+    new File("${buildDir}/rpmbuild/SRPMS").mkdirs()
+}
+
+task downloadArtemisTarFile(
+        type: Download
+) {
+    src "http://www.pirbot.com/mirrors/apache/activemq/activemq-artemis/${ARTEMIS_VERSION}/apache-artemis-${ARTEMIS_VERSION}-bin.tar.gz"
+    dest new File("${buildDir}/rpmbuild/SOURCES", "apache-artemis-${ARTEMIS_VERSION}-bin.tar.gz")
+}
+
+task copyRpmbuild (
+        type: Copy,
+        group: 'rpm',
+        dependsOn: downloadArtemisTarFile,
+) {
+    copy {
+        from 'apache-artemis.spec'
+        into "${buildDir}/rpmbuild/SPECS"
+        filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: props)
+    }
+    copy {
+        from 'build.sh'
+        into "${buildDir}/rpmbuild"
+    }
+}
+
+task rpmBuild(
+        type: Exec,
+        group: 'rpm',
+        dependsOn: copyRpmbuild,
+) {
+    commandLine 'sh', './build.sh'
+    workingDir "${buildDir}/rpmbuild"
+}
+
+task rpmDist(
+        type: Copy,
+        group: 'rpm',
+        dependsOn: rpmBuild,
+) {
+    from "${buildDir}/rpmbuild/RPMS/x86_64/apache-artemis-${ARTEMIS_VERSION}-1.x86_64.rpm"
+    into "${buildDir}/distribution"
+}
